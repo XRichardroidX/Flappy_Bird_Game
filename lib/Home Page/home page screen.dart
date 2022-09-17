@@ -20,7 +20,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
   bool gameStarted = false;
   double birdWidth = 0.1;
   double birdHeight = 0.1;
-  int score = 0;
+  int highestScore = 0;
+  double score = 0;
 
  // static List<double> blockX = [2, 3.5, 5, 6.5];
   double blockX1 = 2;
@@ -46,25 +47,21 @@ class _HomePageScreenState extends State<HomePageScreen> {
       if ((AxisY <= -blockHeight)) {
         return true;
       }
-      score++;
     }
       if((blockX2 - (blockWidth / 2)) <= 0 && (blockX2 + (blockWidth / 2)) >= 0) {
         if ((blockHeight <= AxisY)) {
           return true;
         }
-        score++;
       }
       if((blockX3 - (blockWidth / 2)) <= 0 && (blockX3 + (blockWidth / 2)) >= 0) {
         if ((AxisY <= -blockHeight)) {
           return true;
         }
-        score++;
       }
       if((blockX4 - (blockWidth / 2)) <= 0 && (blockX4 + (blockWidth / 2)) >= 0) {
         if ((blockHeight <= AxisY)) {
           return true;
         }
-        score++;
       }
     return false;
   }
@@ -76,13 +73,32 @@ class _HomePageScreenState extends State<HomePageScreen> {
      double blockX2 = 6;
      double blockX3 = 7.5;
      double blockX4 = 9.0;
-
+     //Todo update highest score
+     if(score > highestScore){
+       int result = score.toInt();
+       highestScore = result;
+       score = 0;
+     }
      AxisY = 0;
      initHeight = 0;
      finalHeight = 0;
      time = 0;
    });
    Navigator.pop(context);
+  }
+
+  void updateScore(){
+    if(
+        ((blockX1 - (blockWidth / 2)) <= 0 && (blockX1 + (blockWidth / 2)) >= 0)
+        ||
+        ((blockX2 - (blockWidth / 2)) <= 0 && (blockX2 + (blockWidth / 2)) >= 0)
+        ||
+        ((blockX3 - (blockWidth / 2)) <= 0 && (blockX3 + (blockWidth / 2)) >= 0)
+        ||
+        ((blockX4 - (blockWidth / 2)) <= 0 && (blockX4 + (blockWidth / 2)) >= 0)
+    ){
+      score += 0.2;
+    }
   }
 
   void startGame() {
@@ -98,6 +114,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
          AxisY = initHeight - finalHeight;
        });
       // Check if bird is dead
+      updateScore();
       if(birdIsDead()){
         // When the game is over stop the game
         timer.cancel();
@@ -244,14 +261,14 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         height: 20.0,
                       ),
                       Text(
-                        "${score}",
+                        "${score.toInt()}",
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
                     ],
                   ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Text(
                         "BEST",
                         style: TextStyle(color: Colors.white, fontSize: 20),
@@ -260,7 +277,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         height: 20.0,
                       ),
                       Text(
-                        "10",
+                        "${highestScore}",
                         style: TextStyle(color: Colors.white, fontSize: 20),
                       ),
                     ],
