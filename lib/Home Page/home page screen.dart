@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flappy_bird_game/Bird/bird%20widget.dart';
 import 'package:flappy_bird_game/Blocks/block.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({Key? key}) : super(key: key);
@@ -23,7 +24,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
   int highestScore = 0;
   double score = 0;
 
- // static List<double> blockX = [2, 3.5, 5, 6.5];
   double blockX1 = 2;
   double blockX2 = 3.5;
   double blockX3 = 5;
@@ -31,6 +31,14 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   static double blockWidth = 0.5;
   static double blockHeight = 0.6;
+
+  Future<void> getHighScore() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState((){
+      highestScore = preferences.getInt("HighestScore") ?? 0;
+    });
+
+  }
 
   void Jump() {
     setState(() {
@@ -66,7 +74,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
     return false;
   }
 
-  void restartGame(){
+  void restartGame() async {
    setState(() {
      gameStarted = false;
      double blockX1 = 4.5;
@@ -77,6 +85,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
      if(score > highestScore){
        int result = score.toInt();
        highestScore = result;
+       //Todo use shared preferences here
        score = 0;
      }
      AxisY = 0;
@@ -84,6 +93,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
      finalHeight = 0;
      time = 0;
    });
+   SharedPreferences preferences = await SharedPreferences.getInstance();
+   await preferences.setInt("HighestScore", highestScore);
    Navigator.pop(context);
   }
 
@@ -101,7 +112,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
     }
   }
 
-  void startGame() {
+  void startGame(){
     gameStarted = true;
     Timer.periodic(Duration(milliseconds: 60), (timer) {
       time += 0.05;
@@ -173,6 +184,12 @@ class _HomePageScreenState extends State<HomePageScreen> {
         });
   }
 
+  @override
+  void initState() {
+    // TODO: implement initState
+   getHighScore();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -287,6 +304,11 @@ class _HomePageScreenState extends State<HomePageScreen> {
             ))
           ],
         ),
+        floatingActionButton: FloatingActionButton(onPressed: () async {
+          SharedPreferences preferences = await SharedPreferences.getInstance();
+          await preferences.remove("HighestScore");
+        },
+        child: Icon(Icons.remove),),
       ),
     );
   }
